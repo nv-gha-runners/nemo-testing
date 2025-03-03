@@ -23,8 +23,10 @@ jobs:
         push: false
         load: true
         tags: nemo-test:latest
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+        cache-from: |
+          type=gha,scope=${{ github.workflow }}
+          type=gha,scope=${{ github.workflow }},ref=refs/heads/main
+        cache-to: type=gha,mode=max,scope=${{ github.workflow }}
 
     - name: Run tests in Docker container
       run: |
