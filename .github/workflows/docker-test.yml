@@ -22,8 +22,6 @@ jobs:
       run: |
         pip install flake8
         flake8 .
-        python --version
-        echo 'done'
 
   test:
     runs-on: linux-amd64-cpu16
