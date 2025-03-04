@@ -7,9 +7,20 @@ on:
       - "pull-request/[0-9]+"
 
 jobs:
-  build-and-test:
-    runs-on: linux-amd64-cpu16
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
+    - name: Run linting
+      run: |
+        pip install flake8
+        flake8 .
+
+  test:
+    runs-on: linux-amd64-cpu16
+    needs: lint
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
