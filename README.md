@@ -1,3 +1,3 @@
 # NeMo Testing
 
-Testing NeMo migration to nvks and nvidia github runners
+Testing NeMo migration to nvks and nvidia github runner
