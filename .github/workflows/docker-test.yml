@@ -68,6 +68,7 @@ jobs:
         ls /mnt/datadrive
         mkdir -p /tmp/nemo-models
         cp /mnt/datadrive/TestData/nemo2_ckpt/Llama3Config8B/pytorch_model.bin /tmp/nemo-models/pytorch_model.bin
+        ls -alh /tmp/nemo-models/pytorch_model.bin
         docker run nemo-test:latest pytest 
 
     - name: Cleanup Azure Files mount
