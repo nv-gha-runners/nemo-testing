@@ -55,30 +55,25 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ github.workflow }}
 
   test:
-    runs-on: linux-amd64-gpu-v100-latest-1
+    runs-on: linux-amd64-cpu8
     needs: build
     container:
       image: ghcr.io/${{ github.repository }}/nemo-test:${{ github.sha }}
       credentials:
          username: ${{ github.actor }}
          password: ${{ secrets.GITHUB_TOKEN }}
+    env:
+      # NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
+      AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_FILES_USERNAME }}
+      AZURE_STORAGE_KEY: ${{ secrets.AZURE_FILES_PASSWORD }}
     steps:    
     - name: Mount test data
-      env:
-        AZURE_FILES_USERNAME: ${{ secrets.AZURE_FILES_USERNAME }}
-        AZURE_FILES_PASSWORD: ${{ secrets.AZURE_FILES_PASSWORD }}
       run: |
-        sudo mkdir /mnt/datadrive
-        if [ ! -d "/etc/smbcredentials" ]; then
-            sudo mkdir /etc/smbcredentials
-        fi
-        if [ ! -f "/etc/smbcredentials/$AZURE_FILES_USERNAME.cred" ]; then
-            printf "username=%s\npassword=%s\n" "$AZURE_FILES_USERNAME" "$AZURE_FILES_PASSWORD" | sudo tee "/etc/smbcredentials/$AZURE_FILES_USERNAME.cred" > /dev/null
-        fi
-        sudo chmod 600 "/etc/smbcredentials/$AZURE_FILES_USERNAME.cred"
-
-        sudo bash -c 'echo "//'$AZURE_FILES_USERNAME'.file.core.windows.net/fileshare /mnt/datadrive cifs nofail,credentials=/etc/smbcredentials/'$AZURE_FILES_USERNAME'.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30" >> /etc/fstab'
-        sudo mount -t cifs "//$AZURE_FILES_USERNAME.file.core.windows.net/fileshare" /mnt/datadrive -o "credentials=/etc/smbcredentials/$AZURE_FILES_USERNAME.cred,vers=3.0,dir_mode=0777,file_mode=0777"
+        mkdir -p /tmp/nemo-models
+        blobfuse2 mount /tmp/nemo-models \
+          --config-file=none \
+          --container-name=fileshare \
+          --tmp-path=/tmp/blobfuse
 
     - name: Run tests
       run: |
@@ -91,7 +86,4 @@ jobs:
     - name: Cleanup Azure Files mount
       if: always()
       run: |
-        rm -rf /tmp/nemo-models
-        sudo umount /mnt/datadrive
-        sudo rm -f /etc/smbcredentials/nemocistorageaccount2.cred
-        sudo sed -i '/nemocistorageaccount2/d' /etc/fstab
+        fusermount -u /tmp/nemo-models
