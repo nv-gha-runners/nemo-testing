@@ -69,13 +69,14 @@ jobs:
     steps:    
     - name: Mount test data
       run: |
-        mkdir -p /tmp/nemo-models
-        blobfuse2 mount /tmp/nemo-models \
+        mkdir -p /mnt/datadrive
+        blobfuse2 mount /mnt/datadrive \
           --config-file=none \
           --container-name=fileshare \
           --tmp-path=/tmp/blobfuse \
           --account-name=$AZURE_STORAGE_ACCOUNT \
-          --account-key=$AZURE_STORAGE_KEY
+          --account-key=$AZURE_STORAGE_KEY \
+          --read-only
 
     - name: Run tests
       run: |
@@ -88,4 +89,5 @@ jobs:
     - name: Cleanup Azure Files mount
       if: always()
       run: |
+        rm -rf /tmp/nemo-models
         fusermount -u /tmp/nemo-models
