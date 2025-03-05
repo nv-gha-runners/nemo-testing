@@ -62,46 +62,15 @@ jobs:
       AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_FILES_USERNAME }}
       AZURE_STORAGE_KEY: ${{ secrets.AZURE_FILES_PASSWORD }}
     steps:    
-    - name: Mount test data
+    - name: Download test data
       run: |
-        mkdir -p /mnt/datadrive
-        mkdir -p /tmp/blobfuse
-        touch /tmp/fuse_connection.cfg
-        chmod 600 /tmp/fuse_connection.cfg
-        cat > /tmp/fuse_connection.cfg << EOF
-        allow-other: false
-        logging:
-          type: syslog
-          level: log_info
-        components:
-          - libfuse
-          - file_cache
-          - attr_cache
-          - azstorage
-        libfuse:
-          attribute-expiration-sec: 120
-          entry-expiration-sec: 120
-          negative-entry-expiration-sec: 240
-        file_cache:
-          path: /tmp/blobfuse
-          timeout-sec: 120
-        attr_cache:
-          timeout-sec: 7200
-        azstorage:
-          type: block
-          account-name: ${AZURE_STORAGE_ACCOUNT}
-          account-key: ${AZURE_STORAGE_KEY}
-          container: fileshare
-          endpoint: https://${AZURE_STORAGE_ACCOUNT}.blob.core.windows.net
-          mode: read-only
-        EOF
-
-        blobfuse2 mount /mnt/datadrive --config-file=/tmp/fuse_config.yaml
+        mkdir -p /tmp/nemo-models
+        python scripts/copy_azure_file.py \
+          --share-name fileshare \
+          --file-path TestData/nemo2_ckpt/Llama3Config8B/pytorch_model.bin \
+          --output-path /tmp/nemo-models/pytorch_model.bin
+        ls -alh /tmp/nemo-models/pytorch_model.bin
 
     - name: Run tests
       run: |
-        ls /mnt/datadrive
-        mkdir -p /tmp/nemo-models
-        cp /mnt/datadrive/TestData/nemo2_ckpt/Llama3Config8B/pytorch_model.bin /tmp/nemo-models/pytorch_model.bin
-        ls -alh /tmp/nemo-models/pytorch_model.bin
         pytest
