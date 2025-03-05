@@ -65,6 +65,7 @@ jobs:
     steps:    
     - name: Download test data
       run: |
+        ls -alh
         mkdir -p /tmp/nemo-models
         python scripts/copy_azure_file.py \
           --share-name fileshare \
