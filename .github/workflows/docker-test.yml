@@ -73,7 +73,9 @@ jobs:
         blobfuse2 mount /tmp/nemo-models \
           --config-file=none \
           --container-name=fileshare \
-          --tmp-path=/tmp/blobfuse
+          --tmp-path=/tmp/blobfuse \
+          --account-name=$AZURE_STORAGE_ACCOUNT \
+          --account-key=$AZURE_STORAGE_KEY
 
     - name: Run tests
       run: |
