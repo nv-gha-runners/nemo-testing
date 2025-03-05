@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: linux-amd64-cpu16
     permissions:
       contents: read
       packages: write
@@ -38,7 +38,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ github.workflow }}
 
   lint:
-    runs-on: ubuntu-latest
+    runs-on: linux-amd64-cpu16
     needs: build
     container:
       image: ghcr.io/${{ github.repository }}/nemo-test:${{ github.sha }}
