@@ -52,7 +52,7 @@ jobs:
         flake8 .
 
   test:
-    runs-on: linux-amd64-cpu8
+    runs-on: linux-amd64-gpu-l4-latest-1
     needs: lint
     container:
       image: ghcr.io/${{ github.repository }}/nemo-test:${{ github.sha }}
@@ -60,7 +60,7 @@ jobs:
          username: ${{ github.actor }}
          password: ${{ secrets.GITHUB_TOKEN }}
     env:
-      # NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
+      NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
       AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_FILES_USERNAME }}
       AZURE_STORAGE_KEY: ${{ secrets.AZURE_FILES_PASSWORD }}
     steps:    
