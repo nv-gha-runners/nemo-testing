@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=python:3.12-bookworm
+ARG BASE_IMAGE=nvcr.io/nvidia/pytorch:25.02-py3
 
 FROM ${BASE_IMAGE}
 
