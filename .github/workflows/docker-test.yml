@@ -24,7 +24,7 @@ jobs:
         flake8 .
 
   test:
-    runs-on: linux-amd64-cpu16
+    runs-on: linux-amd64-gpu-v100-latest-1
     needs: lint
     steps:
     - name: Checkout repository
