@@ -68,7 +68,6 @@ jobs:
         AZURE_FILES_USERNAME: ${{ secrets.AZURE_FILES_USERNAME }}
         AZURE_FILES_PASSWORD: ${{ secrets.AZURE_FILES_PASSWORD }}
       run: |
-        sudo apt-get install -y cifs-utils
         sudo mkdir /mnt/datadrive
         if [ ! -d "/etc/smbcredentials" ]; then
             sudo mkdir /etc/smbcredentials
