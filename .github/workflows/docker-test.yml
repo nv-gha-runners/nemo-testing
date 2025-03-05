@@ -44,7 +44,36 @@ jobs:
           type=gha,scope=${{ github.workflow }}
           type=gha,scope=${{ github.workflow }},ref=refs/heads/main
         cache-to: type=gha,mode=max,scope=${{ github.workflow }}
+    
+    - name: Mount test data
+      env:
+        AZURE_FILES_USERNAME: ${{ secrets.AZURE_FILES_USERNAME }}
+        AZURE_FILES_PASSWORD: ${{ secrets.AZURE_FILES_PASSWORD }}
+      run: |
+        sudo apt-get install -y cifs-utils
+        sudo mkdir /mnt/datadrive
+        if [ ! -d "/etc/smbcredentials" ]; then
+            sudo mkdir /etc/smbcredentials
+        fi
+        if [ ! -f "/etc/smbcredentials/$AZURE_FILES_USERNAME.cred" ]; then
+            printf "username=%s\npassword=%s\n" "$AZURE_FILES_USERNAME" "$AZURE_FILES_PASSWORD" | sudo tee "/etc/smbcredentials/$AZURE_FILES_USERNAME.cred" > /dev/null
+        fi
+        sudo chmod 600 "/etc/smbcredentials/$AZURE_FILES_USERNAME.cred"
+
+        sudo bash -c 'echo "//'$AZURE_FILES_USERNAME'.file.core.windows.net/fileshare /mnt/datadrive cifs nofail,credentials=/etc/smbcredentials/'$AZURE_FILES_USERNAME'.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30" >> /etc/fstab'
+        sudo mount -t cifs "//$AZURE_FILES_USERNAME.file.core.windows.net/fileshare" /mnt/datadrive -o "credentials=/etc/smbcredentials/$AZURE_FILES_USERNAME.cred,vers=3.0,dir_mode=0777,file_mode=0777"
 
     - name: Run tests in Docker container
       run: |
+        ls /mnt/datadrive
+        mkdir -p /tmp/nemo-models
+        cp /mnt/datadrive/TestData/nemo2_ckpt/Llama3Config8B/pytorch_model.bin /tmp/nemo-models/pytorch_model.bin
         docker run nemo-test:latest pytest 
+
+    - name: Cleanup Azure Files mount
+      if: always()
+      run: |
+        rm -rf /tmp/nemo-models
+        sudo umount /mnt/datadrive
+        sudo rm -f /etc/smbcredentials/nemocistorageaccount2.cred
+        sudo sed -i '/nemocistorageaccount2/d' /etc/fstab
