@@ -60,14 +60,14 @@ jobs:
          username: ${{ github.actor }}
          password: ${{ secrets.GITHUB_TOKEN }}
     env:
-      NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
+      NVIDIA_VISIBLE_DEVICES: "0"
       AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_FILES_USERNAME }}
       AZURE_STORAGE_KEY: ${{ secrets.AZURE_FILES_PASSWORD }}
     steps:    
     - name: Download test data
       working-directory: /app
       run: |
-        ls -alh
+        nvidia-smi
         mkdir -p /tmp/nemo-models
         python scripts/copy_azure_file.py \
           --share-name fileshare \
