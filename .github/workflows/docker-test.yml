@@ -42,6 +42,7 @@ jobs:
     needs: build
     container:
       image: ghcr.io/${{ github.repository }}/nemo-test:${{ github.sha }}
+      workdir: /app
       credentials:
          username: ${{ github.actor }}
          password: ${{ secrets.GITHUB_TOKEN }}
@@ -55,6 +56,7 @@ jobs:
     needs: lint
     container:
       image: ghcr.io/${{ github.repository }}/nemo-test:${{ github.sha }}
+      workdir: /app
       credentials:
          username: ${{ github.actor }}
          password: ${{ secrets.GITHUB_TOKEN }}
