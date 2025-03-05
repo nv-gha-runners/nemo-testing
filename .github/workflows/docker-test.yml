@@ -39,6 +39,7 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
+    needs: build
     container:
       image: ghcr.io/${{ github.repository }}/nemo-test:${{ github.sha }}
       credentials:
